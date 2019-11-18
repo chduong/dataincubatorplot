@@ -4,7 +4,11 @@ np.set_printoptions(precision=10) #sets np precision to 10
 
 import matplotlib.pyplot as plt
 
-import seaborn as sns
+import glob
+
+# from datetime import datetime
+
+# import seaborn as sns
 
 import pandas as pd
 pd.set_option('precision', 10) #sets pandas precision to 10
@@ -25,8 +29,10 @@ df['Date'] = pd.to_datetime(df['Date'])
 df = df[['Date', 'Price']]
 df = df.set_index(['Date'])
 df['Price'] = df['Price'].str.replace(',', '')
+
 df = df.sort_values(by='Date') #sorting is optional
-# print(df)
+# df.plot(x='Date', y='Price')
+# df = df['Price'].astype(float)
 
 header('Plot 1, Federal Interest Rates Changed at Red Line')
 #interest rate 1 Sept 18 2019
@@ -65,4 +71,56 @@ df5 = pd.read_csv(filename5)
 
 ax2 = df5.plot(x='Date', y='Price', color= 'red')
 df4.plot(ax=ax2, x='Date', y='Price', color='blue')
+# plt.show()
+
+# Properly Plot the first data frame without having to generate extra CSVs
+df['Price'] = pd.to_numeric(df['Price'])
+df = df.reset_index()
+# print(df)
+
+filename2 = 'vixcurrent.csv'
+dfvix = pd.read_csv(filename2, skiprows=[0])
+dfvix['Date'] = dfvix['Date'].astype('datetime64[ns]')
+dfvix = dfvix.set_index(['Date'])
+dfvix = dfvix.loc['1/1/2017':'11/4/2019']
+dfvix = dfvix.reset_index()
+# print(dfvix)
+# print(dfvix.dtypes)
+
+# Federal Interest Rate Data 2017 - 2019
+all_files = glob.glob('data_fed/fir*.csv')
+
+list = []
+for filename in all_files:
+    df_fir = pd.read_csv(filename, index_col=None, header=0)
+    list.append(df_fir)
+
+df_fir = pd.concat(list, axis=0, ignore_index=True)
+df_fir['Date'] = df_fir['Date'].astype('datetime64[ns]')
+df_fir = df_fir.set_index(['Date'])
+df_fir = df_fir.loc['1/1/2017':'11/4/2019']
+df_fir = df_fir.reset_index()
+# print(df_fir)
+
+# DOW Jones Data  2017-2019
+filename3 = 'data_fed/DJI.csv'
+df_dow = pd.read_csv(filename3)
+df_dow['Date'] = df_dow['Date'].astype('datetime64[ns]')
+df_dow = df_dow.set_index(['Date'])
+df_dow = df_dow.loc['1/1/2017':'11/4/2019']
+df_dow = df_dow.reset_index()
+print(df_dow)
+print(df_dow.dtypes)
+
+# Comparison Plot of All Data
+# fig, axes = plt.subplots(nrows=6, ncols=1, sharex=True)
+fig, axes = plt.subplots(nrows=6, ncols=1)
+df.plot(ax=axes[0], x='Date', y='Price')
+df_dow.plot(ax=axes[1], x='Date', y='Open')
+df_dow.plot(ax=axes[1], x='Date', y='Adj Close', color='r')
+dfvix.plot(ax=axes[2], x='Date', y='VIX Close').set_xlabel('')
+df_fir.plot(ax=axes[3], x='Date', y='1 Mo').set_xlabel('')
+df_fir.plot(ax=axes[4], x='Date', y='3 Mo').set_xlabel('')
+df_fir.plot(ax=axes[5], x='Date', y='6 Mo')
 plt.show()
+plt.close()
