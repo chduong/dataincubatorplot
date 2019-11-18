@@ -109,8 +109,8 @@ df_dow['Date'] = df_dow['Date'].astype('datetime64[ns]')
 df_dow = df_dow.set_index(['Date'])
 df_dow = df_dow.loc['1/1/2017':'11/4/2019']
 df_dow = df_dow.reset_index()
-print(df_dow)
-print(df_dow.dtypes)
+# print(df_dow)
+# print(df_dow.dtypes)
 
 # Comparison Plot of All Data
 # fig, axes = plt.subplots(nrows=6, ncols=1, sharex=True)
